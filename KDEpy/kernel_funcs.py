@@ -290,13 +290,21 @@ class Kernel(collections.abc.Callable):
         # If the function does not have finite support, find a practical value
         else:
 
-            def f(x):
-                return self.evaluate(x, bw=bw)[0] - atol
+            # `atol` is interpreted RELATIVE to the kernel's peak value.
+            # An absolute cutoff makes the truncation radius (in units of bw)
+            # depend on the numeric scale of bw, since the peak density is
+            # ~ 1/bw: large bandwidths get truncated close to the peak and
+            # eventually fail outright when peak < atol. Relative tolerance
+            # gives a scale-invariant truncation radius for every bw.
+            peak = self.evaluate(0.0, bw=bw)[0]
 
-            try:
-                xtol = 1e-3
-                ans = brentq(f, a=0, b=8 * bw, xtol=xtol, full_output=False)
-                return ans + xtol
+            def f(x):
+                return self.evaluate(x, bw=bw)[0] - atol * peak
+
+			try:
+				xtol = 1e-3 * bw
+				ans = brentq(f, a=0, b=20 * bw, xtol=xtol, full_output=False)
+				return ans + xtol
             except ValueError:
                 msg = (
                     "Unable to solve for support numerically. Use a "
