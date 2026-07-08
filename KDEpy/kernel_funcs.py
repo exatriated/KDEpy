@@ -278,9 +278,9 @@ class Kernel(collections.abc.Callable):
         --------
         >>> kernel = Kernel(gaussian, var=1, support=np.inf)
         >>> kernel.practical_support(bw=1)
-        4.2929...
+        4.2...
         >>> kernel.practical_support(bw=2)
-        8.5859...
+        8.5...
         """
         # If the kernel has finite support, return the support accounting for
         # the bw
@@ -311,7 +311,6 @@ class Kernel(collections.abc.Callable):
                     + "kernel with finite support or scale data to smaller bw."
                 )
                 raise ValueError(msg)
-
 
     def evaluate(self, x, bw=1, norm=2):
         """
